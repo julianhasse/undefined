@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>NYT</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="assets/style.css">
+</head>
+
+<body>
+<div class="container">
+	<div class="row">
+		<div class="jumbotron"><img src="assets/images/banner.png"/></div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;Search Parameters</div>
+		<form>
+			<div class="form-group">
+				<label for="inputSearchTerm">Search Term:</label>
+				<input type="search" class="form-control" id="search">
+			</div>
+			<div class="form-group" id="recordChoice">
+				<label for="recordNumber">Number of Records To Retrieve:</label>
+				<select class="form-control">
+					<option>1</option>
+					<option>5</option>
+					<option>10</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword1">Start Year (Optional):</label>
+				<input type="year" class="form-control" id="begin">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputEmail1">End Year (Optional):</label>
+				<input type="year" class="form-control" id="end">
+			</div>
+
+			<button type="submit" id="ajaxCall" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>&nbsp;Submit</button>
+
+			<button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-trash"></span>&nbsp;Reset</button>
+		</form>
+	</div>
+	<div id="dump"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+
+
+		$("#ajaxCall").on("click", function(event) {
+			event.preventDefault();
+			console.log($("#search").val())
+			nytAPI();
+
+		function nytAPI() {
+			var search = $("#search").val().trim();
+			var queryURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=f69be8ef3949474485006b5dde04a86a&q=" + search;
+			
+			// var beginDate = "&begin_date=" + $("#begin").val().trim()
+			// var endDate = "&end_date=" + $("#end").val().trim()
+		
+			console.log(search)
+
+			$.ajax({
+			  url: queryURL,
+			  method: 'GET'
+
+			}).done(function(res) {
+
+				console.log(res)
+			
+				var dump = $("#dump");
+				dump.empty();
+
+				var results = res.response.docs
+				
+				for (var i = 0; i < results.length; i++) {
+					
+					var articleDiv = $("<div>");
+					
+					var headline = res.response.docs[i].headline.main;
+					
+					var articleLink = res.response.docs[i].web_url;
+
+					var p = $("<p>");
+					
+					var h1 = $("<h1>")
+					
+					h1.html('<span class="glyphicon glyphicon-file"></span>' + 
+					headline + "<br>" + "<a href=" + articleLink + " target=_blank>" + "<h3>" + "Read more" + "</h3>" + "</a>");
+					 
+					var imgHolder = $('<img>');
+
+					var thumbnail = res.response.docs[i].multimedia[2].url;
+					console.log("http://www.nytimes.com/" + thumbnail);
+
+					imgHolder.attr("src", "http://www.nytimes.com/" + thumbnail);
+					
+					$("#dump").append(h1).append(imgHolder);
+				}
+			});
+		}});	
+
+
+	</script>
+</div>
+</body>
+</html>
